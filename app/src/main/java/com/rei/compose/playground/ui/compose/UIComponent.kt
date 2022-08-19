@@ -3,6 +3,7 @@
 package com.rei.compose.playground.ui.compose
 
 import android.graphics.Rect
+import android.util.Log
 import android.view.View
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -305,6 +306,7 @@ fun UIComboBox(
     if (expanded) {
         var currentOffset = IntOffset(offset.x, offset.y)
         if (offset.y + height + menuHeight > parentHeight) {
+            Log.d("TAG", "UIComboBox: $height $menuHeight")
             currentOffset = currentOffset.copy(y = (offset.y - height - menuHeight))
         }
         Popup(
