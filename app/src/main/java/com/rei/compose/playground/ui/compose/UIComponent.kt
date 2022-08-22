@@ -9,6 +9,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -18,14 +19,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.*
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -304,10 +303,13 @@ fun UIComboBox(
         }
     )
     if (expanded) {
+        var popUpHeight = remember { mutableStateOf(0) }
         var currentOffset = IntOffset(offset.x, offset.y)
-        if (offset.y + height + menuHeight > parentHeight) {
+        if (offset.y + height + popUpHeight.value > parentHeight) {
             Log.d("TAG", "UIComboBox: $height $menuHeight")
-            currentOffset = currentOffset.copy(y = (offset.y - height - menuHeight))
+            currentOffset = currentOffset.copy(y = (offset.y - popUpHeight.value))
+        } else {
+            currentOffset = currentOffset.copy(y = (offset.y + height))
         }
         Popup(
             offset = currentOffset,
@@ -318,10 +320,13 @@ fun UIComboBox(
             content = {
                 Column(
                     modifier = Modifier
+                        .onSizeChanged {
+                            popUpHeight.value = it.height
+                        }
                         .width(with(density) { width.toDp() })
                         .heightIn(max = with(density) { menuHeight.toDp() })
                         .background(MaterialTheme.colorScheme.background)
-                        .border(1.dp, Color.Gray)
+                        .clip(RoundedCornerShape(10F))
                 ) {
                     if (searchAble) {
                         UIInput(
