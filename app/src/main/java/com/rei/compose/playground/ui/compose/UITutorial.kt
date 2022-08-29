@@ -31,8 +31,12 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 
+enum class UITutorialType {
+    SQUARE, CIRCLE
+}
+
 data class UITutorialPosition(
-    val index: Int,
+    val type: UITutorialType,
     val coordinates: LayoutCoordinates,
     val title: String, val subTitle: String,
     val titleColor: Color = Color.White,
@@ -50,8 +54,17 @@ fun UITutorials(
         mutableStateOf(0)
     }
     snapshotStateList[index.value]?.let {
-        UITutorialSquareScreen(target = it, color) {
-            index.value = index.value + 1
+        when (it.type) {
+            UITutorialType.CIRCLE -> {
+                UITutorialScreen(target = it, color) {
+                    index.value = index.value + 1
+                }
+            }
+            UITutorialType.SQUARE -> {
+                UITutorialSquareScreen(target = it, color) {
+                    index.value = index.value + 1
+                }
+            }
         }
     } ?: run {
         onCompleted()
@@ -248,17 +261,19 @@ fun UITutorialSquareScreen(
         ) {
             drawRect(
                 color = color,
-                topLeft = if (isTop.value) {
-                    targetRect.topLeft.copy(
-                        x = 0F,
-                        y = offset.value - (textHeight.value * outerAnimatable.value)
-                    )
-                } else {
-                    targetRect.topLeft.copy(
-                        x = 0F,
-                        y = (offset.value - targetRect.height.times(0.5)).toFloat()
-                    )
-                },
+                topLeft = Offset(
+                    x = 0F,
+                    y = (targetRect.top - textHeight.value.times(outerAnimatable.value))
+                ),
+                size = targetRect.size.copy(
+                    width = screenWidthPx,
+                    height = (textHeight.value + targetRect.height.times(0.5)).toFloat() * outerAnimatable.value
+                ),
+                alpha = 0.8F
+            )
+            drawRect(
+                color = color,
+                topLeft = targetRect.centerLeft.copy(x = 0F),
                 size = targetRect.size.copy(
                     width = screenWidthPx,
                     height = (textHeight.value + targetRect.height.times(0.5)).toFloat() * outerAnimatable.value
@@ -267,18 +282,14 @@ fun UITutorialSquareScreen(
             )
             dys.forEach { dy ->
                 drawRect(
-                    color = Color.Red,
-                    topLeft = if (isTop.value) {
-                        targetRect.topLeft.copy(
-                            x = 0F,
-                            y = offset.value - (textHeight.value * dy)
-                        )
-                    } else {
-                        targetRect.topLeft.copy(x = 0F, y = offset.value)
-                    },
+                    color = Color.White,
+                    topLeft = Offset(
+                        x = 0F,
+                        y = (targetRect.top - textHeight.value.times(dy))
+                    ),
                     size = targetRect.size.copy(
                         width = screenWidthPx,
-                        height = textHeight.value.toFloat() * dy
+                        height = (textHeight.value * 2 + targetRect.height) * dy
                     ),
                     alpha = 1 - dy
                 )

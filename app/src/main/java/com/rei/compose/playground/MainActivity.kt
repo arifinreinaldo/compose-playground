@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                         UIInput(
                             modifier = Modifier.onGloballyPositioned {
                                 target[3] = UITutorialPosition(
-                                    3,
+                                    UITutorialType.SQUARE,
                                     it,
                                     "Selamat pagi jangan lupa tidur",
                                     "Kerja lagi tetapi asik",
@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
                         UIDescriptiveLink(
                             modifier = Modifier.onGloballyPositioned {
                                 target[2] = UITutorialPosition(
-                                    2,
+                                    UITutorialType.SQUARE,
                                     it,
                                     "Selamat pagi jangan lupa tidur",
                                     "Kerja lagi tetapi asik",
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
                         UIOTP(
                             modifier = Modifier.onGloballyPositioned {
                                 target[1] = UITutorialPosition(
-                                    1,
+                                    UITutorialType.SQUARE,
                                     it,
                                     "Selamat pagi jangan lupa tidur",
                                     "Kerja lagi tetapi asik",
@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                             onClick = {},
                             modifier = Modifier.onGloballyPositioned {
                                 target[0] = UITutorialPosition(
-                                    0,
+                                    UITutorialType.CIRCLE,
                                     it,
                                     "Selamat pagi jangan lupa tidur",
                                     "Kerja lagi tetapi asik",
