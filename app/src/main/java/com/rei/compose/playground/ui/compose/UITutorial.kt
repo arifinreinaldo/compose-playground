@@ -2,12 +2,14 @@ package com.rei.compose.playground.ui.compose
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -179,7 +181,7 @@ fun UITutorialSquareScreen(
     val targetRadius = targetRect.maxDimension / 2f + 40f
     // 40f extra traget spacing
     val animationSpec = infiniteRepeatable<Float>(
-        animation = tween(2000, easing = FastOutLinearInEasing),
+        animation = tween(2000, easing = FastOutSlowInEasing),
         repeatMode = RepeatMode.Restart,
     )
     val animatables = listOf(
@@ -216,7 +218,7 @@ fun UITutorialSquareScreen(
     val outerAnimatable = remember { Animatable(0.6f) }
 
     LaunchedEffect(target) {
-        outerAnimatable.snapTo(0.6f)
+        outerAnimatable.snapTo(0.3f)
 
         outerAnimatable.animateTo(
             targetValue = 1f,
@@ -226,9 +228,14 @@ fun UITutorialSquareScreen(
             ),
         )
     }
-    var top = remember { mutableStateOf(false) }
     var offset = remember {
         mutableStateOf(0F)
+    }
+    var textHeight = remember {
+        mutableStateOf(0)
+    }
+    var isTop = remember {
+        mutableStateOf(false)
     }
     Box {
         Canvas(
@@ -241,22 +248,38 @@ fun UITutorialSquareScreen(
         ) {
             drawRect(
                 color = color,
-                topLeft = if (top.value) {
-                    targetRect.topLeft.copy(x = 0F, y = offset.value)
+                topLeft = if (isTop.value) {
+                    targetRect.topLeft.copy(
+                        x = 0F,
+                        y = offset.value - (textHeight.value * outerAnimatable.value)
+                    )
                 } else {
                     targetRect.topLeft.copy(x = 0F, y = offset.value)
                 },
-                size = targetRect.size.copy(width = screenWidthPx, height = targetRect.height * 3),
-                alpha = 0.9F
+                size = targetRect.size.copy(
+                    width = screenWidthPx,
+                    height = textHeight.value.toFloat() * outerAnimatable.value
+                ),
+                alpha = 0.8F
             )
-//            dys.forEach { dy ->
-//                drawCircle(
-//                    color = Color.White,
-//                    radius = targetRect.maxDimension * dy * 2f,
-//                    center = targetRect.center,
-//                    alpha = 1 - dy
-//                )
-//            }
+            dys.forEach { dy ->
+                drawRect(
+                    color = Color.White,
+                    topLeft = if (isTop.value) {
+                        targetRect.topLeft.copy(
+                            x = 0F,
+                            y = offset.value - (textHeight.value * dy)
+                        )
+                    } else {
+                        targetRect.topLeft.copy(x = 0F, y = offset.value)
+                    },
+                    size = targetRect.size.copy(
+                        width = screenWidthPx,
+                        height = textHeight.value.toFloat() * dy
+                    ),
+                    alpha = 1 - dy
+                )
+            }
             drawRect(
                 color = Color.White,
                 topLeft = targetRect.topLeft.copy(
@@ -273,9 +296,10 @@ fun UITutorialSquareScreen(
         ShowCaseSquareText(
             currentTarget = target,
             targetRect,
-        ) { isTop, height ->
-            top.value = isTop
-            offset.value = height
+        ) { top, offsetText, height ->
+            offset.value = offsetText
+            textHeight.value = height
+            isTop.value = top
         }
     }
 }
@@ -284,7 +308,7 @@ fun UITutorialSquareScreen(
 private fun ShowCaseSquareText(
     currentTarget: UITutorialPosition,
     targetRect: Rect,
-    location: (Boolean, Float) -> Unit
+    location: (Boolean, Float, Int) -> Unit
 ) {
     var txtOffsetY = remember {
         mutableStateOf(0f)
@@ -300,10 +324,14 @@ private fun ShowCaseSquareText(
                     targetRect.topCenter.y - textHeight
 
                 txtOffsetY.value = if (possibleTop > 0) {
-                    location(true, possibleTop)
+                    location(true, targetRect.topCenter.y, textHeight)
                     possibleTop
                 } else {
-                    location(false, targetRect.bottomCenter.y - textHeight)
+                    location(
+                        false,
+                        targetRect.bottomCenter.y,
+                        textHeight
+                    )
                     targetRect.bottomCenter.y
                 }
             }
