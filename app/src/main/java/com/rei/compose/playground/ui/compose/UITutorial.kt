@@ -254,17 +254,20 @@ fun UITutorialSquareScreen(
                         y = offset.value - (textHeight.value * outerAnimatable.value)
                     )
                 } else {
-                    targetRect.topLeft.copy(x = 0F, y = offset.value)
+                    targetRect.topLeft.copy(
+                        x = 0F,
+                        y = (offset.value - targetRect.height.times(0.5)).toFloat()
+                    )
                 },
                 size = targetRect.size.copy(
                     width = screenWidthPx,
-                    height = textHeight.value.toFloat() * outerAnimatable.value
+                    height = (textHeight.value + targetRect.height.times(0.5)).toFloat() * outerAnimatable.value
                 ),
                 alpha = 0.8F
             )
             dys.forEach { dy ->
                 drawRect(
-                    color = Color.White,
+                    color = Color.Red,
                     topLeft = if (isTop.value) {
                         targetRect.topLeft.copy(
                             x = 0F,
