@@ -92,12 +92,17 @@ fun UIInput(
 }
 
 @Composable
-fun UIPassword(modifier: Modifier = Modifier, label: String, value: String) {
+fun UIPassword(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit
+) {
     var passwordVisible: Boolean by remember { mutableStateOf(false) }
     UIInput(
         modifier = modifier,
         onValueChange = { data ->
-
+            onValueChange(data)
         },
         value = value,
         label = label,
@@ -144,7 +149,8 @@ fun UIOTP(
     value: String,
     otp: (String) -> Unit,
     submit: (String) -> Unit,
-    count: Int = 4
+    keyboardType: KeyboardType = KeyboardType.Number,
+    count: Int = 4,
 ) {
     val otpData = remember { mutableListOf<UIOTPData>() }
     if (otpData.isEmpty()) {
@@ -182,7 +188,8 @@ fun UIOTP(
                             }
                         }
                     },
-                    value = data.otp.value
+                    value = data.otp.value,
+                    keyboardType = keyboardType
                 )
             }
             otp(otpData.map { it.otp.value }.joinToString(""))
@@ -191,7 +198,12 @@ fun UIOTP(
 }
 
 @Composable
-fun UIOTPField(modifier: Modifier = Modifier, action: (String) -> Unit, value: String) {
+fun UIOTPField(
+    modifier: Modifier = Modifier,
+    action: (String) -> Unit,
+    value: String,
+    keyboardType: KeyboardType
+) {
 
     OutlinedTextField(
         modifier = modifier,
@@ -210,6 +222,7 @@ fun UIOTPField(modifier: Modifier = Modifier, action: (String) -> Unit, value: S
             unfocusedBorderColor = MaterialTheme.colorScheme.primaryContainer
         ),
         singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
 

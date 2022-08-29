@@ -6,16 +6,17 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import com.rei.compose.playground.ui.compose.ComboBoxData
-import com.rei.compose.playground.ui.compose.UIComboBox
-import com.rei.compose.playground.ui.compose.UIInput
+import com.rei.compose.playground.ui.compose.*
 import com.rei.compose.playground.ui.theme.ComposePlayGroundTheme
 
 class MainActivity : ComponentActivity() {
@@ -28,10 +29,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    var target = remember {
+                        mutableStateMapOf<Int, UITutorialPosition>()
+                    }
+                    var combo = remember { mutableStateOf("") }
+                    var text = remember { mutableStateOf("") }
+                    var otp = remember { mutableStateOf("") }
                     Column(modifier = Modifier.padding(horizontal = 5.dp)) {
-//                        UIInput(onValueChange = {}, value = "", label = "")
-//                        UIInput(onValueChange = {}, value = "", label = "")
-//                        UIInput(onValueChange = {}, value = "", label = "")
+                        UIInput(
+                            modifier = Modifier,
+                            onValueChange = { text.value = it },
+                            value = text.value,
+                            label = "Input"
+                        )
                         UIComboBox(
                             modifier = Modifier,
                             label = "Hohoho",
@@ -75,16 +85,69 @@ class MainActivity : ComponentActivity() {
                                 ComboBoxData("gurara", "gurara"),
                                 ComboBoxData("gurara", "gurara")
                             ),
-                            onValueChange = {},
-                            value = "combobo"
+                            onValueChange = {
+                                combo.value = it
+                            },
+                            value = combo.value
                         )
-                        UIInput(onValueChange = {}, value = "", label = "")
-                        UIInput(onValueChange = {}, value = "", label = "")
-                        UIInput(onValueChange = {}, value = "", label = "")
+                        UIPassword(
+                            modifier = Modifier,
+                            label = "Password",
+                            value = text.value,
+                            onValueChange = { text.value = it })
+                        UIDescriptiveLink(
+                            modifier = Modifier.onGloballyPositioned {
+                                target[2] = UITutorialPosition(
+                                    2,
+                                    it,
+                                    "Selamat pagi jangan lupa tidur",
+                                    "Kerja lagi tetapi asik",
+                                    Color.Red,
+                                    Color.White
+                                )
+                            },
+                            description = "Click here to",
+                            url = "Reset password"
+                        ) {
+                            text.value = "clicked"
+                        }
+                        UIOTP(
+                            modifier = Modifier.onGloballyPositioned {
+                                target[1] = UITutorialPosition(
+                                    1,
+                                    it,
+                                    "Selamat pagi jangan lupa tidur",
+                                    "Kerja lagi tetapi asik",
+                                    Color.Red,
+                                    Color.White
+                                )
+                            },
+                            value = otp.value,
+                            otp = { otp.value = it },
+                            submit = { otp.value = it })
+                        FloatingActionButton(
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned {
+                                target[0] = UITutorialPosition(
+                                    0,
+                                    it,
+                                    "Selamat pagi jangan lupa tidur",
+                                    "Kerja lagi tetapi asik",
+                                    Color.Red,
+                                    Color.White
+                                )
+                            }
+                        ) {
+
+                        }
+                    }
+
+                    UITutorials(target, MaterialTheme.colorScheme.primary) {
+
                     }
                 }
             }
         }
     }
-}
 
+}
