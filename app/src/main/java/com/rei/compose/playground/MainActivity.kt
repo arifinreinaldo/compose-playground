@@ -37,7 +37,16 @@ class MainActivity : ComponentActivity() {
                     var otp = remember { mutableStateOf("") }
                     Column(modifier = Modifier.padding(horizontal = 5.dp)) {
                         UIInput(
-                            modifier = Modifier,
+                            modifier = Modifier.onGloballyPositioned {
+                                target[3] = UITutorialPosition(
+                                    3,
+                                    it,
+                                    "Selamat pagi jangan lupa tidur",
+                                    "Kerja lagi tetapi asik",
+                                    Color.Red,
+                                    Color.White
+                                )
+                            },
                             onValueChange = { text.value = it },
                             value = text.value,
                             label = "Input"

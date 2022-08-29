@@ -48,7 +48,7 @@ fun UITutorials(
         mutableStateOf(0)
     }
     snapshotStateList[index.value]?.let {
-        UITutorialScreen(target = it, color) {
+        UITutorialSquareScreen(target = it, color) {
             index.value = index.value + 1
         }
     } ?: run {
@@ -157,6 +157,166 @@ fun UITutorialScreen(
         ) {
             textCoordinate.value = it
         }
+    }
+}
+
+@Composable
+fun UITutorialSquareScreen(
+    target: UITutorialPosition,
+    color: Color = Color.Red,
+    onClick: () -> Unit
+) {
+    val topArea = 88.dp
+    val density = LocalDensity.current
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidthPx = with(density) { screenWidthDp.toPx() }
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    val yOffset = with(LocalDensity.current) {
+        target.coordinates.positionInRoot().y.toDp()
+    }
+
+    val targetRect = target.coordinates.boundsInRoot()
+    val targetRadius = targetRect.maxDimension / 2f + 40f
+    // 40f extra traget spacing
+    val animationSpec = infiniteRepeatable<Float>(
+        animation = tween(2000, easing = FastOutLinearInEasing),
+        repeatMode = RepeatMode.Restart,
+    )
+    val animatables = listOf(
+        remember { Animatable(0f) },
+        remember { Animatable(0f) }
+    )
+
+    animatables.forEachIndexed { index, animatable ->
+        LaunchedEffect(animatable) {
+            delay(index * 1000L)
+            animatable.animateTo(
+                targetValue = 1f, animationSpec = animationSpec
+            )
+        }
+    }
+    val dys = animatables.map { it.value }
+    var textCoordinate: MutableState<LayoutCoordinates?> = remember {
+        mutableStateOf(null)
+    }
+    var outerOffset = remember {
+        mutableStateOf(Offset(0f, 0f))
+    }
+    var outerRadius = remember {
+        mutableStateOf(0f)
+    }
+    textCoordinate.value?.let { textCoords ->
+        val textRect = textCoords.boundsInRoot()
+        val textHeight = textCoords.size.height
+        val isInGutter = topArea > yOffset || yOffset > screenHeight.dp.minus(topArea)
+        outerOffset.value =
+            getOuterCircleCenter(targetRect, textRect, targetRadius, textHeight, isInGutter)
+        outerRadius.value = getOuterRadius(textRect, targetRect) + targetRadius
+    }
+    val outerAnimatable = remember { Animatable(0.6f) }
+
+    LaunchedEffect(target) {
+        outerAnimatable.snapTo(0.6f)
+
+        outerAnimatable.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 500,
+                easing = FastOutSlowInEasing,
+            ),
+        )
+    }
+    var top = remember { mutableStateOf(false) }
+    var offset = remember {
+        mutableStateOf(0F)
+    }
+    Box {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(alpha = 0.99f)
+                .clickable {
+                    onClick()
+                }
+        ) {
+            drawRect(
+                color = color,
+                topLeft = if (top.value) {
+                    targetRect.topLeft.copy(x = 0F, y = offset.value)
+                } else {
+                    targetRect.topLeft.copy(x = 0F, y = offset.value)
+                },
+                size = targetRect.size.copy(width = screenWidthPx, height = targetRect.height * 3),
+                alpha = 0.9F
+            )
+//            dys.forEach { dy ->
+//                drawCircle(
+//                    color = Color.White,
+//                    radius = targetRect.maxDimension * dy * 2f,
+//                    center = targetRect.center,
+//                    alpha = 1 - dy
+//                )
+//            }
+            drawRect(
+                color = Color.White,
+                topLeft = targetRect.topLeft.copy(
+                    x = targetRect.topLeft.x - 25,
+                    y = targetRect.topLeft.y - 25
+                ),
+                size = targetRect.size.copy(
+                    width = targetRect.width + 50,
+                    height = targetRect.height + 50
+                ),
+                blendMode = BlendMode.Clear
+            )
+        }
+        ShowCaseSquareText(
+            currentTarget = target,
+            targetRect,
+        ) { isTop, height ->
+            top.value = isTop
+            offset.value = height
+        }
+    }
+}
+
+@Composable
+private fun ShowCaseSquareText(
+    currentTarget: UITutorialPosition,
+    targetRect: Rect,
+    location: (Boolean, Float) -> Unit
+) {
+    var txtOffsetY = remember {
+        mutableStateOf(0f)
+    }
+    Column(
+        modifier = Modifier
+            .offset(y = with(LocalDensity.current) {
+                txtOffsetY.value.toDp()
+            })
+            .onGloballyPositioned {
+                val textHeight = it.size.height
+                val possibleTop =
+                    targetRect.topCenter.y - textHeight
+
+                txtOffsetY.value = if (possibleTop > 0) {
+                    location(true, possibleTop)
+                    possibleTop
+                } else {
+                    location(false, targetRect.bottomCenter.y - textHeight)
+                    targetRect.bottomCenter.y
+                }
+            }
+            .padding(16.dp)
+    )
+    {
+        Text(
+            text = currentTarget.title,
+            fontSize = 24.sp,
+            color = currentTarget.subTitleColor,
+            fontWeight = FontWeight.Bold
+        )
+        Text(text = currentTarget.subTitle, fontSize = 16.sp, color = currentTarget.subTitleColor)
     }
 }
 
