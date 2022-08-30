@@ -355,7 +355,7 @@ private fun ShowCaseSquareText(
         Text(
             text = currentTarget.title,
             fontSize = 24.sp,
-            color = currentTarget.subTitleColor,
+            color = currentTarget.titleColor,
             fontWeight = FontWeight.Bold
         )
         Text(text = currentTarget.subTitle, fontSize = 16.sp, color = currentTarget.subTitleColor)
@@ -395,7 +395,7 @@ private fun ShowCaseText(
         Text(
             text = currentTarget.title,
             fontSize = 24.sp,
-            color = currentTarget.subTitleColor,
+            color = currentTarget.titleColor,
             fontWeight = FontWeight.Bold
         )
         Text(text = currentTarget.subTitle, fontSize = 16.sp, color = currentTarget.subTitleColor)

@@ -5,6 +5,7 @@ package com.rei.compose.playground.ui.compose
 import android.graphics.Rect
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -239,6 +240,8 @@ fun UIComboBox(
     onValueChange: (String) -> Unit,
     value: String,
 ) {
+    val isKeyboardOpen by keyboardAsState()
+
     val searchAble = options.size > 10
     var filterOptions = remember { mutableListOf<ComboBoxData>() }
     var filter = remember { mutableStateOf("") }
@@ -277,7 +280,13 @@ fun UIComboBox(
     }
     val coordinates = remember { Ref<LayoutCoordinates>() }
     var menuHeight by remember { mutableStateOf(0) }
-
+    isKeyboardOpen.apply {
+        updateHeight(
+            view.rootView, coordinates.value, verticalMarginInPx
+        ) {
+            menuHeight = it
+        }
+    }
     UIInput(
         modifier = modifier
             .onGloballyPositioned {
@@ -339,6 +348,7 @@ fun UIComboBox(
                         .width(with(density) { width.toDp() })
                         .heightIn(max = with(density) { menuHeight.toDp() })
                         .background(MaterialTheme.colorScheme.background)
+                        .border(1.dp, Color.Gray.copy(alpha = 0.8F))
                         .clip(RoundedCornerShape(10F))
                 ) {
                     if (searchAble) {
@@ -399,5 +409,35 @@ fun updateHeight(
     val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
     val heightBelow =
         visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom
-    onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMarginInPx)
+    onHeightUpdate(max(heightAbove, heightBelow).toInt())
+}
+
+enum class Keyboard {
+    Opened, Closed
+}
+
+@Composable
+fun keyboardAsState(): State<Keyboard> {
+    val keyboardState = remember { mutableStateOf(Keyboard.Closed) }
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val onGlobalListener = ViewTreeObserver.OnGlobalLayoutListener {
+            val rect = Rect()
+            view.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = view.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            keyboardState.value = if (keypadHeight > screenHeight * 0.15) {
+                Keyboard.Opened
+            } else {
+                Keyboard.Closed
+            }
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalListener)
+
+        onDispose {
+            view.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalListener)
+        }
+    }
+
+    return keyboardState
 }
