@@ -301,7 +301,7 @@ fun UITutorialSquareScreen(
                     y = targetRect.topLeft.y - 25
                 ),
                 size = targetRect.size.copy(
-                    width = targetRect.width + 50,
+                    width = screenWidthPx,
                     height = targetRect.height + 50
                 ),
                 blendMode = BlendMode.Clear
