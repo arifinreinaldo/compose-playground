@@ -3,12 +3,12 @@ package com.rei.compose.playground
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,10 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.rei.compose.playground.ui.compose.*
 import com.rei.compose.playground.ui.theme.ComposePlayGroundTheme
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -129,11 +131,25 @@ class MainActivity : ComponentActivity() {
                         ) {
 
                         }
+                        UICarousel(
+                            Modifier,
+                            listOf("Power", "Habib", "Stall"),
+                            padding = 20,
+                            spacing = 10
+                        ) { page ->
+                            Text(
+                                modifier = Modifier
+                                    .height(100.dp)
+                                    .fillMaxWidth()
+                                    .background(Color.Red),
+                                text = "Halaman $page"
+                            )
+                        }
                     }
 
-                    UITutorials(target, MaterialTheme.colorScheme.primary) {
-
-                    }
+//                    UITutorials(target, MaterialTheme.colorScheme.primary) {
+//
+//                    }
                 }
             }
         }

@@ -9,7 +9,9 @@ import android.view.ViewTreeObserver
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -37,6 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.rei.compose.playground.util.set
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -440,4 +445,38 @@ fun keyboardAsState(): State<Keyboard> {
     }
 
     return keyboardState
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun <T> UICarousel(
+    modifier: Modifier = Modifier,
+    data: List<T>,
+    padding: Int = 3,
+    spacing: Int = 3,
+    content: @Composable (T) -> Unit,
+) {
+
+    val pageCount = data.size
+
+    // We start the pager in the middle of the raw number of pages
+    val startIndex = Int.MAX_VALUE / 2
+    val pagerState = rememberPagerState(initialPage = startIndex)
+    HorizontalPager(
+        modifier = modifier,
+        count = Int.MAX_VALUE,
+        state = pagerState,
+        contentPadding = PaddingValues(horizontal = padding.dp),
+        itemSpacing = spacing.dp,
+
+        ) { index ->
+        val page = (index - startIndex).floorMod(pageCount)
+        // Our page content
+        content(data[page])
+    }
+}
+
+private fun Int.floorMod(other: Int): Int = when (other) {
+    0 -> this
+    else -> this - floorDiv(other) * other
 }
