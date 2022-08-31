@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
                         }
                         UICarousel(
                             Modifier,
-                            listOf("Power", "Habib", "Stall"),
+                            listOf("Habib", "Power", "Stall"),
                             padding = 20,
                             spacing = 10
                         ) { page ->
@@ -141,15 +141,15 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .height(100.dp)
                                     .fillMaxWidth()
-                                    .background(Color.Red),
+                                    .background(Color.Blue),
                                 text = "Halaman $page"
                             )
                         }
                     }
 
-//                    UITutorials(target, MaterialTheme.colorScheme.primary) {
-//
-//                    }
+                    UITutorials(target, MaterialTheme.colorScheme.primary) {
+
+                    }
                 }
             }
         }

@@ -454,25 +454,48 @@ fun <T> UICarousel(
     data: List<T>,
     padding: Int = 3,
     spacing: Int = 3,
+    activeIndicator: Color = Color.Black,
+    inactiveIndicator: Color = Color.Gray,
+    sizeIndicator: Float = 16F,
     content: @Composable (T) -> Unit,
 ) {
+    Box(contentAlignment = Alignment.BottomCenter) {
+        val pageCount = data.size
 
-    val pageCount = data.size
+        // We start the pager in the middle of the raw number of pages
+        val startIndex = Int.MAX_VALUE / 2
+        val pagerState = rememberPagerState(initialPage = startIndex)
+        HorizontalPager(
+            modifier = modifier,
+            count = Int.MAX_VALUE,
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = padding.dp),
+            itemSpacing = spacing.dp,
 
-    // We start the pager in the middle of the raw number of pages
-    val startIndex = Int.MAX_VALUE / 2
-    val pagerState = rememberPagerState(initialPage = startIndex)
-    HorizontalPager(
-        modifier = modifier,
-        count = Int.MAX_VALUE,
-        state = pagerState,
-        contentPadding = PaddingValues(horizontal = padding.dp),
-        itemSpacing = spacing.dp,
-
-        ) { index ->
-        val page = (index - startIndex).floorMod(pageCount)
-        // Our page content
-        content(data[page])
+            ) { index ->
+            val page = (index - startIndex).floorMod(pageCount)
+            // Our page content
+            content(data[page])
+        }
+        Row(modifier = Modifier.padding(bottom = 20.dp)) {
+            (pagerState.currentPage - startIndex).floorMod(pageCount).apply {
+                data.forEachIndexed { index, t ->
+                    if (this == index) {
+                        Canvas(
+                            modifier = Modifier.padding(horizontal = (sizeIndicator * 2 / 3).dp),
+                            onDraw = {
+                                drawCircle(color = activeIndicator, radius = sizeIndicator)
+                            })
+                    } else {
+                        Canvas(
+                            modifier = Modifier.padding(horizontal = (sizeIndicator * 2 / 3).dp),
+                            onDraw = {
+                                drawCircle(color = inactiveIndicator, radius = sizeIndicator)
+                            })
+                    }
+                }
+            }
+        }
     }
 }
 
