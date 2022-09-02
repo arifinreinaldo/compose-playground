@@ -59,6 +59,8 @@ dependencies {
     implementation "com.google.accompanist:accompanist-pager:0.26.2-beta"
     implementation "com.google.accompanist:accompanist-pager-indicators:0.26.2-beta"
     //infinite carousel
+    //coil loader
+    implementation("io.coil-kt:coil-compose:2.2.0")
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
