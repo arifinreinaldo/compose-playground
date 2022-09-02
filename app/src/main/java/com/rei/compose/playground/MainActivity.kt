@@ -51,7 +51,8 @@ class MainActivity : ComponentActivity() {
                             },
                             onValueChange = { text.value = it },
                             value = text.value,
-                            label = "Input"
+                            label = "Input",
+                            error = "Hihih"
                         )
                         UIComboBox(
                             modifier = Modifier,
@@ -85,7 +86,8 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier,
                             label = "Password",
                             value = text.value,
-                            onValueChange = { text.value = it })
+                            error = "Salah dong password"
+                        ) { text.value = it }
                         UIDescriptiveLink(
                             modifier = Modifier.onGloballyPositioned {
                                 target[2] = UITutorialPosition(
@@ -131,7 +133,7 @@ class MainActivity : ComponentActivity() {
                         ) {
 
                         }
-                        UICarousel(
+                        UIInfiniteCarousel(
                             Modifier,
                             listOf("Habib", "Power", "Stall"),
                             padding = 20,

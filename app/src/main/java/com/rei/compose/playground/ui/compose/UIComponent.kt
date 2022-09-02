@@ -43,6 +43,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.rei.compose.playground.util.set
+import kotlinx.coroutines.delay
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -61,7 +62,8 @@ fun UIInput(
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     click: (() -> Unit)? = null,
-    maxLength: Int = -1
+    maxLength: Int = -1,
+    error: String? = null,
 ) {
     Column(
         modifier
@@ -92,8 +94,16 @@ fun UIInput(
             leadingIcon = leadingIcon,
             visualTransformation = visualTransformation,
             enabled = click == null, //If textfied enabled false clickable can be fired
-            label = { Text(label) }
+            label = { Text(label) },
+            isError = error != null
         )
+        error?.apply {
+            Text(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                text = this,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }
 
@@ -102,7 +112,8 @@ fun UIPassword(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    onValueChange: (String) -> Unit
+    error: String? = null,
+    onValueChange: (String) -> Unit,
 ) {
     var passwordVisible: Boolean by remember { mutableStateOf(false) }
     UIInput(
@@ -125,6 +136,7 @@ fun UIPassword(
             }
         },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        error = error
     )
 }
 
@@ -449,7 +461,7 @@ fun keyboardAsState(): State<Keyboard> {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun <T> UICarousel(
+fun <T> UIInfiniteCarousel(
     modifier: Modifier = Modifier,
     data: List<T>,
     padding: Int = 3,
@@ -459,12 +471,12 @@ fun <T> UICarousel(
     sizeIndicator: Float = 16F,
     content: @Composable (T) -> Unit,
 ) {
+    // We start the pager in the middle of the raw number of pages
+    val startIndex = Int.MAX_VALUE / 2
+    val pagerState = rememberPagerState(initialPage = startIndex)
     Box(contentAlignment = Alignment.BottomCenter) {
         val pageCount = data.size
 
-        // We start the pager in the middle of the raw number of pages
-        val startIndex = Int.MAX_VALUE / 2
-        val pagerState = rememberPagerState(initialPage = startIndex)
         HorizontalPager(
             modifier = modifier,
             count = Int.MAX_VALUE,
@@ -497,6 +509,12 @@ fun <T> UICarousel(
             }
         }
     }
+    LaunchedEffect(key1 = Unit, block = {
+        while (true) {
+            delay(2000)
+            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        }
+    })
 }
 
 private fun Int.floorMod(other: Int): Int = when (other) {
