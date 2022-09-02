@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,6 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -463,6 +467,7 @@ fun keyboardAsState(): State<Keyboard> {
 @Composable
 fun <T> UIInfiniteCarousel(
     modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     data: List<T>,
     padding: Int = 3,
     spacing: Int = 3,
@@ -509,12 +514,30 @@ fun <T> UIInfiniteCarousel(
             }
         }
     }
+    val isLooping = remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(key1 = Unit, block = {
-        while (true) {
+        while (isLooping.value) {
             delay(2000)
             pagerState.animateScrollToPage(pagerState.currentPage + 1)
         }
     })
+    DisposableEffect(key1 = lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                isLooping.value = true
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                isLooping.value = false
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+
+    }
+
 }
 
 private fun Int.floorMod(other: Int): Int = when (other) {

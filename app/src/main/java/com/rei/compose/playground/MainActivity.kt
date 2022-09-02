@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity() {
                         }
                         UIInfiniteCarousel(
                             Modifier,
-                            listOf("Habib", "Power", "Stall"),
+                            data = listOf("Habib", "Power", "Stall"),
                             padding = 20,
                             spacing = 10
                         ) { page ->
