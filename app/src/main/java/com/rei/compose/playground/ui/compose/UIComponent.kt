@@ -519,7 +519,7 @@ fun <T> UIInfiniteCarousel(
     }
     LaunchedEffect(key1 = Unit, block = {
         while (isLooping.value) {
-            delay(2000)
+            delay(4000)
             pagerState.animateScrollToPage(pagerState.currentPage + 1)
         }
     })

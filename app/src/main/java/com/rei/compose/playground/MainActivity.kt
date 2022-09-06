@@ -4,34 +4,39 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
-import coil.size.Size
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.rei.compose.playground.ui.compose.*
 import com.rei.compose.playground.ui.theme.ComposePlayGroundTheme
+import com.skydoves.landscapist.glide.GlideImage
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -47,7 +52,13 @@ class MainActivity : ComponentActivity() {
                     var combo = remember { mutableStateOf("") }
                     var text = remember { mutableStateOf("") }
                     var otp = remember { mutableStateOf("") }
-                    Column(modifier = Modifier.padding(horizontal = 5.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp)
+                            .verticalScroll(
+                                rememberScrollState()
+                            )
+                    ) {
                         UIInput(
                             modifier = Modifier.onGloballyPositioned {
                                 target[3] = UITutorialPosition(
@@ -153,25 +164,52 @@ class MainActivity : ComponentActivity() {
                             padding = 20,
                             spacing = 10
                         ) { url ->
-                            val painter = rememberAsyncImagePainter(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(url)
-                                    .scale(Scale.FIT)
-                                    .build()
-                            )
-
-                            if (painter.state is AsyncImagePainter.State.Success) {
-                                // This will be executed during the first composition if the image is in the memory cache.
-                            }
-
-                            Image(
+                            GlideImage(
+                                imageModel = url,
                                 modifier = Modifier
                                     .size(200.dp)
                                     .clip(CircleShape)                       // clip to the circle shape
                                     .border(2.dp, Color.Gray, CircleShape),
-                                painter = painter,
-                                contentDescription = stringResource(R.string.description)
+                                contentScale = ContentScale.Fit,
+                                loading = {
+                                    Box(
+                                        Modifier.matchParentSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                },
                             )
+//                            SubcomposeAsyncImage(
+//                                modifier = Modifier
+//                                    .size(200.dp)
+//                                    .clip(CircleShape)                       // clip to the circle shape
+//                                    .border(2.dp, Color.Gray, CircleShape),
+//                                model = url,
+//                                loading = {
+//                                    CircularProgressIndicator()
+//                                },
+//                                contentDescription = stringResource(R.string.description)
+//                            )
+//                            val painter = rememberAsyncImagePainter(
+//                                model = ImageRequest.Builder(LocalContext.current)
+//                                    .data(url)
+//                                    .scale(Scale.FIT)
+//                                    .build()
+//                            )
+//
+//                            if (painter.state is AsyncImagePainter.State.Success) {
+//                                // This will be executed during the first composition if the image is in the memory cache.
+//                            }
+//
+//                            Image(
+//                                modifier = Modifier
+//                                    .size(200.dp)
+//                                    .clip(CircleShape)                       // clip to the circle shape
+//                                    .border(2.dp, Color.Gray, CircleShape),
+//                                painter = painter,
+//                                contentDescription = stringResource(R.string.description)
+//                            )
                         }
                     }
 
