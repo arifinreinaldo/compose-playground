@@ -58,6 +58,7 @@ class LocationService : Service() {
             val update = notif.setContentText("Loc : $lat,$long")
             manager.notify(1, update.build())
         }.launchIn(serviceScope)
+        startForeground(1, notif.build())
     }
 
     private fun stop() {
