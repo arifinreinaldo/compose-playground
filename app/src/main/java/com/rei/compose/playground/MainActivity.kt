@@ -1,19 +1,16 @@
 package com.rei.compose.playground
 
+import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.*
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,15 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Scale
+import androidx.core.app.ActivityCompat
+import com.rei.compose.playground.service.LocationService
 import com.rei.compose.playground.ui.compose.*
 import com.rei.compose.playground.ui.theme.ComposePlayGroundTheme
 import com.skydoves.landscapist.glide.GlideImage
@@ -39,6 +30,13 @@ import com.skydoves.landscapist.glide.GlideImage
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ), 0
+        )
         setContent {
             ComposePlayGroundTheme {
                 // A surface container using the 'background' color from the theme
@@ -140,7 +138,12 @@ class MainActivity : ComponentActivity() {
                             otp = { otp.value = it },
                             submit = { otp.value = it })
                         FloatingActionButton(
-                            onClick = {},
+                            onClick = {
+                                Intent(applicationContext, LocationService::class.java).apply {
+                                    action = LocationService.START
+                                    startService(this)
+                                }
+                            },
                             modifier = Modifier.onGloballyPositioned {
                                 target[0] = UITutorialPosition(
                                     UITutorialType.CIRCLE,
@@ -152,7 +155,28 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         ) {
+                            Text("Start")
+                        }
 
+                        FloatingActionButton(
+                            onClick = {
+                                Intent(applicationContext, LocationService::class.java).apply {
+                                    action = LocationService.STOP
+                                    startService(this)
+                                }
+                            },
+                            modifier = Modifier.onGloballyPositioned {
+                                target[0] = UITutorialPosition(
+                                    UITutorialType.CIRCLE,
+                                    it,
+                                    "Selamat pagi jangan lupa tidur",
+                                    "Kerja lagi tetapi asik",
+                                    Color.Red,
+                                    Color.White
+                                )
+                            }
+                        ) {
+                            Text("Stop")
                         }
                         UIInfiniteCarousel(
                             Modifier,
